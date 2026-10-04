@@ -1,98 +1,160 @@
 
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>FaceVerify Lab</title>
 <style>
-:root{color-scheme:dark;font-family:Arial,sans-serif}
+:root{color-scheme:dark;--bg:#10151f;--panel:#1a2434;--card:#101722;--border:#394a63;--text:#edf3ff;--muted:#afc4e6;--green:#22c78a;--yellow:#ffd166}
 *{box-sizing:border-box}
-body{margin:0;background:#10141c;color:#edf2f7}
-main{max-width:1000px;margin:auto;padding:24px}
-h1{margin-bottom:6px}
-p{color:#aebbd0;line-height:1.5}
-.panel{background:#1a2230;border:1px solid #344158;border-radius:14px;padding:16px;margin:16px 0}
-.controls{display:flex;flex-wrap:wrap;gap:10px}
-button,select{padding:11px 14px;border-radius:8px;border:1px solid #50617a;background:#263449;color:white;cursor:pointer}
-button:disabled{opacity:.5;cursor:not-allowed}
-.primary{background:#176b50}
-.video-wrap{position:relative;background:#05080c;border-radius:10px;overflow:hidden;min-height:220px}
-video,canvas{display:block;width:100%;max-height:560px;object-fit:contain}
-canvas{position:absolute;inset:0;height:100%;pointer-events:none}
-#placeholder{padding:70px 10px;text-align:center;color:#aebbd0}
-.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:10px}
-.metric{padding:13px;background:#111824;border-radius:9px}
-.metric span{display:block;color:#aebbd0;font-size:13px;margin-bottom:8px}
-.metric strong{font-size:20px;overflow-wrap:anywhere}
-#status{font-weight:bold;color:#f6c969}
-small{color:#aebbd0}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 system-ui,-apple-system,Segoe UI,sans-serif}
+main{max-width:1250px;margin:auto;padding:24px 16px 50px}
+h1{font-size:clamp(28px,4vw,40px);margin:0 0 4px}
+h2{font-size:26px;margin:0 0 18px}
+p{color:var(--muted)}
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:22px;margin-top:20px}
+.controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+button,select{font:inherit;color:var(--text);background:#26364d;border:1px solid #506581;border-radius:10px;padding:12px 14px}
+button{cursor:pointer}
+button.primary{background:#176c55}
+button:disabled{opacity:.45;cursor:not-allowed}
+select{max-width:100%;min-width:220px}
+.status{font-weight:700;color:var(--yellow);margin:14px 0}
+.videoBox{position:relative;width:100%;aspect-ratio:16/9;max-height:650px;background:#05080d;border-radius:12px;overflow:hidden;display:flex;align-items:center;justify-content:center}
+video,canvas{position:absolute;width:100%;height:100%;inset:0;object-fit:contain}
+video{transform:none}
+canvas{pointer-events:none}
+.placeholder{color:var(--muted);text-align:center;padding:20px}
+.source{margin-bottom:0}
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:12px}
+.metric{background:var(--card);border-radius:12px;padding:14px;min-width:0}
+.metric span{display:block;color:var(--muted);font-size:14px}
+.metric strong{display:block;font-size:23px;overflow-wrap:anywhere;margin-top:4px}
+.note{border-left:3px solid var(--green);padding:10px 14px;background:#111d28;border-radius:6px}
+.small{font-size:13px;color:var(--muted)}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;background:var(--card);padding:12px;border-radius:8px}
+footer{margin-top:22px;color:var(--muted);font-size:13px}
 </style>
 </head>
 <body>
 <main>
-  <h1>FaceVerify Lab</h1>
-  <p>Лаборатория тестирования камеры, обнаружения лица и производительности.</p>
+<header>
+<h1>FaceVerify Lab</h1>
+<p>Лаборатория тестирования камеры, обнаружения лица и производительности.</p>
+</header>
 
-  <section class="panel">
-    <h2>1. Камера</h2>
-    <div class="controls">
-      <button id="discover" class="primary">Разрешить и найти камеры</button>
-      <select id="camera" aria-label="Выбор камеры">
-        <option value="">Сначала найди камеры</option>
-      </select>
-      <button id="start">Запустить выбранную</button>
-      <button id="stop">Остановить</button>
-    </div>
-    <p id="status" role="status">Ожидаю разрешения камеры.</p>
-    <div class="video-wrap">
-      <video id="video" autoplay muted playsinline></video>
-      <canvas id="overlay"></canvas>
-      <div id="placeholder">Видео с камеры появится здесь</div>
-    </div>
-    <p id="source">Источник: не выбран</p>
-  </section>
+<section class="panel">
+<h2>1. Камера</h2>
+<div class="controls">
+<button class="primary" id="findBtn">Разрешить и найти камеры</button>
+<select id="cameraSelect" aria-label="Выбор камеры">
+<option value="">Сначала найди камеры</option>
+</select>
+<button id="startBtn" disabled>Запустить выбранную</button>
+<button id="stopBtn" disabled>Остановить</button>
+</div>
+<div class="status" id="status" role="status">Ожидаю разрешения камеры.</div>
+<div class="videoBox">
+<video id="video" autoplay muted playsinline></video>
+<canvas id="overlay"></canvas>
+<div class="placeholder" id="placeholder">Видео с камеры появится здесь</div>
+</div>
+<p class="source" id="sourceLabel">Источник: не выбран</p>
+</section>
 
-  <section class="panel">
-    <h2>2. Диагностика</h2>
-    <div class="metrics">
-      <div class="metric"><span>Обнаружено лиц</span><strong id="faces">—</strong></div>
-      <div class="metric"><span>Разрешение видео</span><strong id="resolution">—</strong></div>
-      <div class="metric"><span>Частота видео</span><strong id="fps">—</strong></div>
-      <div class="metric"><span>Состояние потока</span><strong id="track">—</strong></div>
-      <div class="metric"><span>Время работы</span><strong id="elapsed">0 сек</strong></div>
-      <div class="metric"><span>Обработано кадров</span><strong id="frames">0</strong></div>
-    </div>
-    <p id="faceStatus">Обнаружение лица ещё не запущено.</p>
-    <button id="report">Скачать диагностический отчёт JSON</button>
-    <button id="reset">Сбросить статистику</button>
-  </section>
+<section class="panel">
+<h2>2. Диагностика</h2>
+<div class="metrics">
+<div class="metric"><span>Обнаружено лиц</span><strong id="faces">—</strong></div>
+<div class="metric"><span>Разрешение видео</span><strong id="resolution">—</strong></div>
+<div class="metric"><span>FPS потока*</span><strong id="sourceFps">—</strong></div>
+<div class="metric"><span>FPS анализа</span><strong id="analysisFps">—</strong></div>
+<div class="metric"><span>Средняя задержка</span><strong id="latency">—</strong></div>
+<div class="metric"><span>Макс. задержка</span><strong id="maxLatency">—</strong></div>
+<div class="metric"><span>Время теста</span><strong id="duration">0 с</strong></div>
+<div class="metric"><span>Обработано кадров</span><strong id="frames">0</strong></div>
+<div class="metric"><span>Состояние потока</span><strong id="streamState">Нет</strong></div>
+</div>
+<p id="faceStatus">Лицо ещё не обнаружено.</p>
+<p class="note">Обнаружение лица не доказывает живое присутствие и не подтверждает личность.</p>
+<p class="small">* FPS потока берётся из настроек видеотрека, если браузер сообщает это значение. FPS анализа считается отдельно по завершённым вызовам детектора. Это разные показатели.</p>
+<div class="controls">
+<button id="downloadBtn" disabled>Скачать отчёт JSON</button>
+<button id="resetBtn">Сбросить статистику</button>
+</div>
+</section>
 
-  <p><small>Важно: обнаружение лица не доказывает, что перед камерой живой человек, и не подтверждает личность. Эта версия предназначена для тестирования собственной системы.</small></p>
+<section class="panel">
+<h2>3. Технические сведения</h2>
+<pre id="details">Камера ещё не запущена.</pre>
+</section>
+
+<footer>
+FaceVerify Lab — экспериментальная диагностическая лаборатория. Данные изображения не сохраняются в отчёт JSON.
+</footer>
 </main>
 
 <script type="module">
-import {FaceDetector, FilesetResolver} from
-  "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.21/vision_bundle.mjs";
+import { FaceDetector, FilesetResolver } from
+"https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.21/vision_bundle.mjs";
 
 const $ = id => document.getElementById(id);
-const video = $("video"), canvas = $("overlay"), ctx = canvas.getContext("2d");
-let stream = null, detector = null, running = false, busy = false;
-let frames = 0, faceCount = 0, startedAt = 0, lastFrameTime = 0;
-let measuredFps = 0, fpsFrames = 0, fpsStartedAt = 0, animation = 0;
-let lastDetections = [], lastReport = {};
+const video = $("video");
+const canvas = $("overlay");
+const ctx = canvas.getContext("2d");
+const select = $("cameraSelect");
 
-function status(message) { $("status").textContent = message; }
+let detector = null;
+let stream = null;
+let running = false;
+let loopId = 0;
+let startTime = 0;
+let processed = 0;
+let totalLatency = 0;
+let maxLatency = 0;
+let analysisWindowStart = 0;
+let analysisWindowFrames = 0;
+let measuredAnalysisFps = 0;
+let lastFaceCount = 0;
+let lastError = "";
+let cameraInfo = {};
+let reportHistory = [];
+let lastVideoTime = -1;
+let busy = false;
 
-async function loadDetector() {
+function setStatus(message, error = false) {
+  $("status").textContent = message;
+  $("status").style.color = error ? "#ff8585" : "#ffd166";
+}
+
+function format(value, digits = 1) {
+  return Number.isFinite(value) ? value.toFixed(digits) : "—";
+}
+
+function elapsedSeconds() {
+  return startTime ? (performance.now() - startTime) / 1000 : 0;
+}
+
+function resizeCanvas() {
+  const w = video.videoWidth || 640;
+  const h = video.videoHeight || 480;
+  if (canvas.width !== w || canvas.height !== h) {
+    canvas.width = w;
+    canvas.height = h;
+  }
+}
+
+async function getDetector() {
   if (detector) return detector;
-  status("Загружаю модель обнаружения лица…");
+  setStatus("Загружаю модель обнаружения лица…");
   const vision = await FilesetResolver.forVisionTasks(
     "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.21/wasm"
   );
   detector = await FaceDetector.createFromOptions(vision, {
     baseOptions: {
-      modelAssetPath: "https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/1/blaze_face_short_range.tflite",
+      modelAssetPath:
+        "https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/1/blaze_face_short_range.tflite",
       delegate: "CPU"
     },
     runningMode: "VIDEO",
@@ -101,164 +163,280 @@ async function loadDetector() {
   return detector;
 }
 
-async function discoverCameras() {
+async function findCameras() {
   try {
-    status("Запрашиваю разрешение на камеру…");
-    const temporary = await navigator.mediaDevices.getUserMedia({video:true,audio:false});
-    temporary.getTracks().forEach(track => track.stop());
+    setStatus("Запрашиваю разрешение и ищу камеры…");
+    const permissionStream = await navigator.mediaDevices.getUserMedia({
+      video: true,
+      audio: false
+    });
+    permissionStream.getTracks().forEach(track => track.stop());
+
     const devices = await navigator.mediaDevices.enumerateDevices();
     const cameras = devices.filter(device => device.kind === "videoinput");
-    $("camera").replaceChildren();
-    cameras.forEach((device, index) => {
-      const option = document.createElement("option");
-      option.value = device.deviceId;
-      option.textContent = device.label || `Камера ${index + 1}`;
-      $("camera").append(option);
-    });
-    if (!cameras.length) throw new Error("Браузер не обнаружил камеры.");
-    status(`Найдено камер: ${cameras.length}. Выбери устройство и запусти.`);
-  } catch (error) {
-    status("Не удалось получить камеры: " + error.message);
-  }
-}
+    select.replaceChildren();
 
-function stopCamera() {
-  running = false;
-  cancelAnimationFrame(animation);
-  if (stream) stream.getTracks().forEach(track => track.stop());
-  stream = null;
-  video.srcObject = null;
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  $("placeholder").style.display = "block";
-  $("source").textContent = "Источник: не выбран";
-  $("track").textContent = "Остановлен";
-  status("Камера остановлена.");
+    if (!cameras.length) {
+      select.add(new Option("Камеры не найдены", ""));
+      $("startBtn").disabled = true;
+      setStatus("Камеры не найдены.", true);
+      return;
+    }
+
+    cameras.forEach((camera, index) => {
+      const label = camera.label || `Камера ${index + 1}`;
+      select.add(new Option(label, camera.deviceId));
+    });
+
+    $("startBtn").disabled = false;
+    setStatus(`Найдено камер: ${cameras.length}. Выбери источник и запусти его.`);
+  } catch (error) {
+    lastError = `${error.name}: ${error.message}`;
+    setStatus(`Не удалось получить доступ к камере: ${error.message}`, true);
+    $("details").textContent = lastError;
+  }
 }
 
 async function startCamera() {
-  stopCamera();
-  try {
-    if (!navigator.mediaDevices?.getUserMedia) {
-      throw new Error("Камера недоступна. Открой сайт через HTTPS.");
-    }
-    status("Подключаю камеру…");
-    const id = $("camera").value;
-    const constraints = id
-      ? {video:{deviceId:{exact:id}},audio:false}
-      : {video:true,audio:false};
-    stream = await navigator.mediaDevices.getUserMedia(constraints);
-    video.srcObject = stream;
-    await video.play();
-    await loadDetector();
-    running = true;
-    frames = 0;
-    faceCount = 0;
-    fpsFrames = 0;
-    startedAt = performance.now();
-    fpsStartedAt = startedAt;
-    lastFrameTime = 0;
-    $("placeholder").style.display = "none";
-    const track = stream.getVideoTracks()[0];
-    $("source").textContent = "Источник: " + (track.label || "камера");
-    status("Камера запущена. Анализирую изображение…");
-    animate();
-  } catch (error) {
-    status("Ошибка: " + error.message);
-  }
-}
-
-function animate() {
-  if (!running || busy || video.readyState < 2) {
-    if (running) animation = requestAnimationFrame(animate);
+  await stopCamera(false);
+  const deviceId = select.value;
+  if (!deviceId) {
+    setStatus("Сначала найди и выбери камеру.", true);
     return;
   }
-  busy = true;
+
   try {
-    const now = performance.now();
-    frames++;
-    fpsFrames++;
-    if (now - fpsStartedAt >= 1000) {
-      measuredFps = fpsFrames * 1000 / (now - fpsStartedAt);
-      fpsFrames = 0;
-      fpsStartedAt = now;
-    }
-    if (canvas.width !== video.videoWidth || canvas.height !== video.videoHeight) {
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-    }
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    const result = detector.detectForVideo(video, now);
-    lastDetections = result.detections || [];
-    faceCount = lastDetections.length;
-    lastDetections.forEach(detection => {
-      const box = detection.boundingBox;
-      if (!box) return;
-      ctx.strokeStyle = "#35e58b";
-      ctx.lineWidth = Math.max(2, canvas.width / 300);
-      ctx.strokeRect(box.originX, box.originY, box.width, box.height);
-      const confidence = detection.categories?.[0]?.score;
-      ctx.fillStyle = "#35e58b";
-      ctx.font = `${Math.max(14, canvas.width / 45)}px Arial`;
-      ctx.fillText(
-        `Лицо ${confidence == null ? "" : Math.round(confidence * 100) + "%"}`,
-        box.originX, Math.max(18, box.originY - 8)
-      );
+    setStatus("Подключаю камеру…");
+    const newStream = await navigator.mediaDevices.getUserMedia({
+      video: {
+        deviceId: { exact: deviceId },
+        width: { ideal: 1280 },
+        height: { ideal: 720 }
+      },
+      audio: false
     });
-    $("faces").textContent = faceCount;
-    $("resolution").textContent = `${video.videoWidth} × ${video.videoHeight}`;
-    $("fps").textContent = measuredFps.toFixed(1);
-    $("track").textContent = stream?.getVideoTracks()[0]?.readyState || "—";
-    $("elapsed").textContent = Math.floor((now - startedAt) / 1000) + " сек";
-    $("frames").textContent = frames;
-    $("faceStatus").textContent = faceCount
-      ? "Лицо обнаружено. Это не является проверкой живого присутствия."
-      : "Лицо не обнаружено в текущем кадре.";
-    lastReport = {
-      timestamp: new Date().toISOString(),
-      camera: stream?.getVideoTracks()[0]?.label || "",
-      width: video.videoWidth, height: video.videoHeight,
-      measuredFps: Number(measuredFps.toFixed(2)),
-      processedFrames: frames, detectedFaces: faceCount,
-      note: "Face detection does not establish identity or liveness."
+
+    stream = newStream;
+    video.srcObject = stream;
+    await video.play();
+
+    await getDetector();
+
+    const track = stream.getVideoTracks()[0];
+    cameraInfo = {
+      label: track.label || "Неизвестная камера",
+      deviceId: track.getSettings().deviceId || deviceId,
+      settings: track.getSettings(),
+      constraints: track.getConstraints()
     };
-  } catch (error) {
-    status("Ошибка анализа: " + error.message);
-  } finally {
+
+    running = true;
+    startTime = performance.now();
+    processed = 0;
+    totalLatency = 0;
+    maxLatency = 0;
+    analysisWindowStart = performance.now();
+    analysisWindowFrames = 0;
+    measuredAnalysisFps = 0;
+    lastFaceCount = 0;
+    lastVideoTime = -1;
     busy = false;
-    if (running) animation = requestAnimationFrame(animate);
+    reportHistory = [];
+
+    $("placeholder").hidden = true;
+    $("stopBtn").disabled = false;
+    $("downloadBtn").disabled = false;
+    $("sourceLabel").textContent = `Источник: ${cameraInfo.label}`;
+    setStatus("Камера запущена. Анализирую изображение…");
+    updateDiagnostics();
+    loopId = requestAnimationFrame(analyzeFrame);
+  } catch (error) {
+    lastError = `${error.name}: ${error.message}`;
+    setStatus(`Ошибка запуска: ${error.message}`, true);
+    $("details").textContent = lastError;
+    await stopCamera(false);
   }
 }
 
-$("discover").addEventListener("click", discoverCameras);
-$("start").addEventListener("click", startCamera);
-$("stop").addEventListener("click", stopCamera);
-$("reset").addEventListener("click", () => {
-  frames = 0; faceCount = 0; fpsFrames = 0;
-  startedAt = performance.now();
-  fpsStartedAt = startedAt;
-  measuredFps = 0;
-  $("faces").textContent = "—";
-  $("frames").textContent = "0";
-  $("fps").textContent = "—";
-  $("elapsed").textContent = "0 сек";
-  status(running ? "Статистика сброшена." : "Статистика сброшена. Камера остановлена.");
-});
-$("report").addEventListener("click", () => {
+function analyzeFrame() {
+  if (!running) return;
+  loopId = requestAnimationFrame(analyzeFrame);
+
+  if (busy || video.readyState < HTMLMediaElement.HAVE_CURRENT_DATA ||
+      video.videoWidth === 0 || video.currentTime === lastVideoTime) return;
+
+  busy = true;
+  lastVideoTime = video.currentTime;
+
+  try {
+    resizeCanvas();
+    const now = performance.now();
+    const result = detector.detectForVideo(video, now);
+    const end = performance.now();
+    const duration = end - now;
+
+    processed++;
+    totalLatency += duration;
+    maxLatency = Math.max(maxLatency, duration);
+    analysisWindowFrames++;
+
+    if (end - analysisWindowStart >= 1000) {
+      measuredAnalysisFps = analysisWindowFrames * 1000 / (end - analysisWindowStart);
+      analysisWindowFrames = 0;
+      analysisWindowStart = end;
+    }
+
+    const detections = result.detections || [];
+    lastFaceCount = detections.length;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    for (const detection of detections) {
+      const box = detection.boundingBox;
+      if (!box) continue;
+
+      ctx.strokeStyle = "#22e58f";
+      ctx.lineWidth = Math.max(2, canvas.width / 400);
+      ctx.strokeRect(box.originX, box.originY, box.width, box.height);
+
+      const score = detection.categories?.[0]?.score;
+      const label = `Лицо ${Number.isFinite(score) ? Math.round(score * 100) + "%" : ""}`;
+      ctx.font = `bold ${Math.max(16, canvas.width / 45)}px system-ui`;
+      const textY = Math.max(22, box.originY - 8);
+      ctx.fillStyle = "#22e58f";
+      ctx.fillText(label, box.originX, textY);
+    }
+
+    reportHistory.push({
+      timeSeconds: Number(elapsedSeconds().toFixed(2)),
+      detectionLatencyMs: Number(duration.toFixed(2)),
+      faces: lastFaceCount
+    });
+    if (reportHistory.length > 10000) reportHistory.shift();
+
+    updateDiagnostics();
+  } catch (error) {
+    lastError = `${error.name}: ${error.message}`;
+    setStatus(`Ошибка анализа: ${error.message}`, true);
+  } finally {
+    busy = false;
+  }
+}
+
+function updateDiagnostics() {
+  const settings = stream?.getVideoTracks()[0]?.getSettings() || {};
+  const elapsed = elapsedSeconds();
+  const track = stream?.getVideoTracks()[0];
+
+  $("faces").textContent = String(lastFaceCount);
+  $("resolution").textContent = video.videoWidth
+    ? `${video.videoWidth} × ${video.videoHeight}` : "—";
+  $("sourceFps").textContent = Number.isFinite(settings.frameRate)
+    ? format(settings.frameRate) : "Не сообщается";
+  $("analysisFps").textContent = processed
+    ? format(measuredAnalysisFps || processed / Math.max(elapsed, 0.001)) : "0";
+  $("latency").textContent = processed
+    ? `${format(totalLatency / processed)} мс` : "—";
+  $("maxLatency").textContent = processed
+    ? `${format(maxLatency)} мс` : "—";
+  $("duration").textContent = `${Math.floor(elapsed)} с`;
+  $("frames").textContent = String(processed);
+  $("streamState").textContent = track?.readyState === "live" ? "live" :
+    (track?.readyState || "Нет");
+
+  $("faceStatus").textContent = lastFaceCount > 0
+    ? `Лицо обнаружено: ${lastFaceCount}. Это не является проверкой живого присутствия.`
+    : "Лицо пока не обнаружено.";
+
+  $("details").textContent = JSON.stringify({
+    camera: cameraInfo.label || null,
+    videoTrackSettings: settings,
+    videoReadyState: video.readyState,
+    videoPaused: video.paused,
+    elapsedSeconds: Number(elapsed.toFixed(2)),
+    processedFrames: processed,
+    sourceFpsReported: Number.isFinite(settings.frameRate) ? settings.frameRate : null,
+    analysisFpsMeasured: processed ? Number((processed / Math.max(elapsed, 0.001)).toFixed(2)) : 0,
+    averageDetectionLatencyMs: processed ? Number((totalLatency / processed).toFixed(2)) : null,
+    maxDetectionLatencyMs: processed ? Number(maxLatency.toFixed(2)) : null,
+    lastFaceCount,
+    lastError: lastError || null
+  }, null, 2);
+}
+
+async function stopCamera(showMessage = true) {
+  running = false;
+  cancelAnimationFrame(loopId);
+  busy = false;
+
+  if (stream) {
+    stream.getTracks().forEach(track => track.stop());
+    stream = null;
+  }
+  video.pause();
+  video.srcObject = null;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  $("placeholder").hidden = false;
+  $("stopBtn").disabled = true;
+
+  if (showMessage) setStatus("Камера остановлена.");
+}
+
+function resetStats() {
+  processed = 0;
+  totalLatency = 0;
+  maxLatency = 0;
+  startTime = running ? performance.now() : 0;
+  analysisWindowStart = performance.now();
+  analysisWindowFrames = 0;
+  measuredAnalysisFps = 0;
+  lastFaceCount = 0;
+  reportHistory = [];
+  updateDiagnostics();
+  setStatus(running ? "Статистика сброшена. Тест продолжается." : "Статистика сброшена.");
+}
+
+function downloadReport() {
+  const settings = stream?.getVideoTracks()[0]?.getSettings() || cameraInfo.settings || {};
+  const elapsed = elapsedSeconds();
   const report = {
-    ...lastReport,
-    exportedAt: new Date().toISOString(),
-    processedFrames: frames,
-    detectedFaces: faceCount,
-    measuredFps: Number(measuredFps.toFixed(2))
+    application: "FaceVerify Lab",
+    reportVersion: 2,
+    createdAt: new Date().toISOString(),
+    camera: cameraInfo.label || null,
+    trackSettings: settings,
+    durationSeconds: Number(elapsed.toFixed(2)),
+    processedFrames: processed,
+    sourceFpsReported: Number.isFinite(settings.frameRate) ? settings.frameRate : null,
+    averageProcessingRateFps: processed ? Number((processed / Math.max(elapsed, 0.001)).toFixed(2)) : 0,
+    averageDetectionLatencyMs: processed ? Number((totalLatency / processed).toFixed(2)) : null,
+    maxDetectionLatencyMs: processed ? Number(maxLatency.toFixed(2)) : null,
+    lastFaceCount,
+    lastError: lastError || null,
+    samples: reportHistory,
+    note: "Face detection does not establish liveness or identity. FPS from track settings is browser-reported, not an independent measurement of sensor output."
   };
-  const blob = new Blob([JSON.stringify(report, null, 2)], {type:"application/json"});
+
+  const blob = new Blob([JSON.stringify(report, null, 2)], {
+    type: "application/json"
+  });
   const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "faceverify-report.json";
-  a.click();
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `faceverify-report-${new Date().toISOString().replace(/[:.]/g, "-")}.json`;
+  link.click();
   URL.revokeObjectURL(url);
-});
+}
+
+$("findBtn").addEventListener("click", findCameras);
+$("startBtn").addEventListener("click", startCamera);
+$("stopBtn").addEventListener("click", () => stopCamera(true));
+$("resetBtn").addEventListener("click", resetStats);
+$("downloadBtn").addEventListener("click", downloadReport);
+
+setInterval(() => {
+  if (running) updateDiagnostics();
+}, 1000);
+
 window.addEventListener("beforeunload", () => {
   if (stream) stream.getTracks().forEach(track => track.stop());
 });
